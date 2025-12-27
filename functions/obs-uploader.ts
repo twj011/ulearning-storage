@@ -1,7 +1,14 @@
 // 华为云 OBS 上传 - TypeScript 实现
 // 基于 Python OBS SDK 的逻辑重写
 
-import { UlearningTokenInfo } from './ulearning-api'
+interface UlearningTokenInfo {
+  ak: string
+  sk: string
+  securitytoken: string
+  endpoint: string
+  bucket: string
+  domain: string
+}
 
 // 计算 HMAC-SHA256
 async function hmacSHA256(key: string, data: string): Promise<ArrayBuffer> {
