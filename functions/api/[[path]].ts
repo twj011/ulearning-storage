@@ -8,6 +8,10 @@ interface Env {
   DB: D1Database
   KV: KVNamespace
   DEFAULT_COURSE_ID?: string
+  ULEARNING_USERNAME?: string
+  ULEARNING_PASSWORD?: string
+  ADMIN_NAME?: string
+  ADMIN_PASSWORD?: string
 }
 
 const corsHeaders = {
@@ -16,12 +20,62 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'Content-Type, Authorization',
 }
 
+// 获取或刷新 token
+async function getAuthToken(env: Env): Promise<string> {
+  // 1. 尝试从 KV 获取缓存的 token
+  const cachedToken = await env.KV.get('auth_token')
+  if (cachedToken) {
+    return cachedToken
+  }
+
+  // 2. 使用环境变量中的用户名密码登录
+  if (!env.ULEARNING_USERNAME || !env.ULEARNING_PASSWORD) {
+    throw new Error('未配置 ULEARNING_USERNAME 或 ULEARNING_PASSWORD')
+  }
+
+  const authToken = await UlearningAPI.login(env.ULEARNING_USERNAME, env.ULEARNING_PASSWORD)
+
+  // 3. 缓存 token（12小时过期）
+  await env.KV.put('auth_token', authToken, { expirationTtl: 43200 })
+
+  return authToken
+}
+
 export const onRequest: PagesFunction<Env> = async (context) => {
   const { request, env } = context
   const url = new URL(request.url)
 
   if (request.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders })
+  }
+
+  // HTTP Basic Auth 验证
+  const adminName = env.ADMIN_NAME || 'ADMIN'
+  const adminPassword = env.ADMIN_PASSWORD || '123456'
+  const authHeader = request.headers.get('Authorization')
+
+  if (!authHeader || !authHeader.startsWith('Basic ')) {
+    return new Response('Unauthorized', {
+      status: 401,
+      headers: {
+        'WWW-Authenticate': 'Basic realm="Protected Area"',
+        ...corsHeaders
+      }
+    })
+  }
+
+  const base64Credentials = authHeader.split(' ')[1]
+  const credentials = atob(base64Credentials)
+  const [username, password] = credentials.split(':')
+
+  if (username !== adminName || password !== adminPassword) {
+    return new Response('Unauthorized', {
+      status: 401,
+      headers: {
+        'WWW-Authenticate': 'Basic realm="Protected Area"',
+        ...corsHeaders
+      }
+    })
   }
 
   try {
@@ -46,15 +100,12 @@ export const onRequest: PagesFunction<Env> = async (context) => {
 
     // 文件上传接口
     if (url.pathname === '/api/files/upload' && request.method === 'POST') {
-      const authHeader = request.headers.get('Authorization')
-      if (!authHeader) {
-        return new Response(JSON.stringify({ error: 'Unauthorized' }), {
-          status: 401,
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
-        })
+      // 优先使用请求头中的 token，否则使用环境变量自动登录
+      let authToken = request.headers.get('Authorization')?.replace('Bearer ', '')
+      if (!authToken) {
+        authToken = await getAuthToken(env)
       }
 
-      const authToken = authHeader.replace('Bearer ', '')
       const formData = await request.formData()
       const files = formData.getAll('files') as File[]
       const courseId = formData.get('courseId') as string | null || env.DEFAULT_COURSE_ID

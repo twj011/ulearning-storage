@@ -48,7 +48,11 @@ export async function getUploadToken(authToken: string, remotePath: string): Pro
   url.searchParams.set('path', remotePath)
 
   const response = await fetch(url.toString(), {
-    headers: { Authorization: authToken }
+    headers: {
+      Authorization: authToken,
+      Origin: 'https://courseweb.ulearning.cn',
+      Referer: 'https://courseweb.ulearning.cn/'
+    }
   })
 
   if (!response.ok) {
@@ -76,7 +80,9 @@ export async function notifyUploadComplete(
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      Authorization: authToken
+      Authorization: authToken,
+      Origin: 'https://courseweb.ulearning.cn',
+      Referer: 'https://courseweb.ulearning.cn/'
     },
     body: JSON.stringify({
       title: filename,
@@ -108,7 +114,9 @@ export async function publishToCourse(
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      Authorization: authToken
+      Authorization: authToken,
+      Origin: 'https://courseweb.ulearning.cn',
+      Referer: 'https://courseweb.ulearning.cn/'
     },
     body: JSON.stringify({
       ocId: courseId,
