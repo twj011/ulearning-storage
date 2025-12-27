@@ -12,7 +12,7 @@
 
 ### 第 2 步：部署到 Cloudflare
 
-1. 访问 [Cloudflare Pages](https://dash.cloudflare.com/pages)
+1. 访问 [Cloudflare Pages](https://dash.cloudflare.com)
 2. 点击 **Create a project** → **Connect to Git**
 3. 选择你刚才 Fork 的仓库 `ulearning-storage`
 4. 构建设置会自动识别，直接点击 **Save and Deploy**
@@ -99,7 +99,7 @@
 
 > **注意：** 本项目使用 Cloudflare Workers 绑定，无需 `.env` 文件。所有配置通过 `wrangler.toml` 管理。详见 [CLOUDFLARE_CONFIG.md](CLOUDFLARE_CONFIG.md)
 
-## 快速开始
+## 本地
 
 ### 方式一：自动配置（推荐）
 
@@ -314,13 +314,6 @@ uleaning-storage/
 └── README.md               # 本文件
 ```
 
-## 许可证
-
-MIT License
-
-## 贡献
-
-欢迎提交 Issue 和 Pull Request！
 
 ## 相关链接
 
@@ -328,3 +321,5 @@ MIT License
 - [Cloudflare R2 文档](https://developers.cloudflare.com/r2/)
 - [Cloudflare D1 文档](https://developers.cloudflare.com/d1/)
 - [Wrangler CLI 文档](https://developers.cloudflare.com/workers/wrangler/)
+
+> claudecode may make mistakes, so double-check outputs. 
