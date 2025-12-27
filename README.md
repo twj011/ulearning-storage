@@ -2,46 +2,50 @@
 
 基于优学院平台和华为云 OBS 的免费在线网盘，使用 Cloudflare Pages 部署。
 
-## 🚀 一键部署（最简单）
+## 🚀 一键部署
 
-[![Deploy to Cloudflare Workers](https://deploy.workers.cloudflare.com/button)](https://deploy.workers.cloudflare.com/?url=https://github.com/twj0/ulearning-storage)
+### 第 1 步：Fork 项目
 
-**点击按钮，3 分钟完成部署！**
+[![Fork on GitHub](https://img.shields.io/badge/Fork-GitHub-blue?style=for-the-badge&logo=github)](https://github.com/twj0/ulearning-storage/fork)
 
-Cloudflare 会自动帮你：
-1. ✅ Fork 项目到你的 GitHub
-2. ✅ 创建 Cloudflare Pages 项目
-3. ✅ 配置构建设置（自动识别）
-4. ✅ 部署应用到全球 CDN
+点击按钮 Fork 项目到你的 GitHub 账号
 
-**部署完成后，在 Cloudflare Dashboard 中一键绑定资源：**
+### 第 2 步：部署到 Cloudflare
 
-进入你的 Pages 项目 → **Settings** → **Functions** → **Bindings**
+1. 访问 [Cloudflare Pages](https://dash.cloudflare.com/pages)
+2. 点击 **Create a project** → **Connect to Git**
+3. 选择你刚才 Fork 的仓库 `ulearning-storage`
+4. 构建设置会自动识别，直接点击 **Save and Deploy**
 
-1. **添加 D1 数据库绑定**（必需）
-   - 点击 **Add binding** → 选择 **D1 database**
-   - Variable name: `DB`
-   - 点击 **Create new database** → 输入 `storage_db`
-   - 保存后，点击 **Console** → 执行 SQL 初始化：
-     ```sql
-     CREATE TABLE IF NOT EXISTS files (
-       id TEXT PRIMARY KEY,
-       name TEXT NOT NULL,
-       size INTEGER NOT NULL,
-       type TEXT,
-       url TEXT NOT NULL,
-       content_id TEXT,
-       created_at TEXT NOT NULL
-     );
-     ```
+### 第 3 步：配置绑定（在 Dashboard 中点几下）
 
-2. **添加 KV 命名空间绑定**（可选，用于会话管理）
-   - 点击 **Add binding** → 选择 **KV namespace**
-   - Variable name: `KV`
-   - 点击 **Create new namespace** → 输入 `storage_kv`
-   - 保存
+部署完成后，进入项目 → **Settings** → **Functions** → **Bindings**
 
-完成！访问你的 Pages URL 即可使用。
+#### 添加 D1 数据库（必需）
+- 点击 **Add binding** → **D1 database**
+- Variable name: `DB`
+- 点击 **Create new database** → 输入 `storage_db` → 保存
+- 进入 D1 Console → 执行 SQL：
+  ```sql
+  CREATE TABLE files (
+    id TEXT PRIMARY KEY,
+    name TEXT NOT NULL,
+    size INTEGER NOT NULL,
+    type TEXT,
+    url TEXT NOT NULL,
+    content_id TEXT,
+    created_at TEXT NOT NULL
+  );
+  ```
+
+#### 添加 KV 命名空间（可选）
+- 点击 **Add binding** → **KV namespace**
+- Variable name: `KV`
+- 点击 **Create new namespace** → 输入 `storage_kv` → 保存
+
+### ✅ 完成！
+
+访问你的 Pages URL 即可使用。
 
 ---
 
