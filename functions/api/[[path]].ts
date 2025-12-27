@@ -7,6 +7,7 @@ import { uploadToOBS } from '../obs-uploader'
 interface Env {
   DB: D1Database
   KV: KVNamespace
+  DEFAULT_COURSE_ID?: string
 }
 
 const corsHeaders = {
@@ -56,6 +57,7 @@ export const onRequest: PagesFunction<Env> = async (context) => {
       const authToken = authHeader.replace('Bearer ', '')
       const formData = await request.formData()
       const files = formData.getAll('files') as File[]
+      const courseId = formData.get('courseId') as string | null || env.DEFAULT_COURSE_ID
       const uploaded = []
 
       for (const file of files) {
@@ -76,7 +78,12 @@ export const onRequest: PagesFunction<Env> = async (context) => {
           file.size
         )
 
-        // 5. 保存文件元数据到 D1
+        // 5. 如果提供了 courseId，自动发布到课程
+        if (courseId) {
+          await UlearningAPI.publishToCourse(authToken, contentId, courseId)
+        }
+
+        // 6. 保存文件元数据到 D1
         await env.DB.prepare(
           'INSERT INTO files (id, name, size, type, url, content_id, created_at) VALUES (?, ?, ?, ?, ?, ?, ?)'
         ).bind(
