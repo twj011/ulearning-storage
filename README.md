@@ -17,15 +17,19 @@
 3. 选择你刚才 Fork 的仓库 `ulearning-storage`
 4. 构建设置会自动识别，直接点击 **Save and Deploy**
 
-### 第 3 步：配置绑定（在 Dashboard 中点几下）
+### 第 3 步：配置绑定
 
 部署完成后，进入项目 → **Settings** → **Functions** → **Bindings**
 
-#### 添加 D1 数据库（必需）
+#### 1. 添加 D1 数据库
 - 点击 **Add binding** → **D1 database**
 - Variable name: `DB`
-- 点击 **Create new database** → 输入 `storage_db` → 保存
-- 进入 D1 Console → 执行 SQL：
+- D1 database: **Create new database** → 输入 `UlearningStorageDB`
+- 点击 **Save**
+
+#### 2. 初始化数据库
+- 进入 **Workers & Pages** → **D1** → 找到 `UlearningStorageDB`
+- 点击 **Console** → 执行以下 SQL：
   ```sql
   CREATE TABLE files (
     id TEXT PRIMARY KEY,
@@ -38,10 +42,12 @@
   );
   ```
 
-#### 添加 KV 命名空间（可选）
+#### 3. 添加 KV 命名空间（可选，用于会话缓存）
+- 返回项目 → **Settings** → **Functions** → **Bindings**
 - 点击 **Add binding** → **KV namespace**
 - Variable name: `KV`
-- 点击 **Create new namespace** → 输入 `storage_kv` → 保存
+- KV namespace: **Create new namespace** → 输入 `UlearningStorageKV`
+- 点击 **Save**
 
 ### ✅ 完成！
 

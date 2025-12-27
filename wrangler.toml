@@ -3,20 +3,11 @@ compatibility_date = "2024-01-01"
 
 pages_build_output_dir = "dist"
 
-# ==================== 绑定配置 ====================
-# 部署到 Cloudflare Pages 后，在 Dashboard 中配置绑定
-# Settings → Functions → Bindings
+# KV namespace for sessions (auto-provisioned on deploy)
+[[kv_namespaces]]
+binding = "KV"
 
-# D1 数据库（必需）
-# Dashboard 中创建后会自动绑定，无需手动填写 ID
+# D1 database for file metadata (auto-provisioned on deploy)
 [[d1_databases]]
 binding = "DB"
 database_name = "storage_db"
-database_id = ""
-
-# KV 命名空间（可选）
-# Dashboard 中创建后会自动绑定，无需手动填写 ID
-[[kv_namespaces]]
-binding = "KV"
-id = ""
-preview_id = ""
