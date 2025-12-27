@@ -51,7 +51,6 @@ export default function FileUpload({ token, onClose, onComplete }: FileUploadPro
       })
 
       xhr.open('POST', '/api/files/upload')
-      xhr.setRequestHeader('Authorization', `Bearer ${token}`)
       xhr.send(formData)
     } catch (err) {
       setError(err instanceof Error ? err.message : '上传失败')
