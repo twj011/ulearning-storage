@@ -2,6 +2,49 @@
 
 基于优学院平台和华为云 OBS 的免费在线网盘，使用 Cloudflare Pages 部署。
 
+## 🚀 一键部署（最简单）
+
+[![Deploy to Cloudflare Workers](https://deploy.workers.cloudflare.com/button)](https://deploy.workers.cloudflare.com/?url=https://github.com/twj0/ulearning-storage)
+
+**点击按钮，3 分钟完成部署！**
+
+Cloudflare 会自动帮你：
+1. ✅ Fork 项目到你的 GitHub
+2. ✅ 创建 Cloudflare Pages 项目
+3. ✅ 配置构建设置（自动识别）
+4. ✅ 部署应用到全球 CDN
+
+**部署完成后，在 Cloudflare Dashboard 中一键绑定资源：**
+
+进入你的 Pages 项目 → **Settings** → **Functions** → **Bindings**
+
+1. **添加 D1 数据库绑定**（必需）
+   - 点击 **Add binding** → 选择 **D1 database**
+   - Variable name: `DB`
+   - 点击 **Create new database** → 输入 `storage_db`
+   - 保存后，点击 **Console** → 执行 SQL 初始化：
+     ```sql
+     CREATE TABLE IF NOT EXISTS files (
+       id TEXT PRIMARY KEY,
+       name TEXT NOT NULL,
+       size INTEGER NOT NULL,
+       type TEXT,
+       url TEXT NOT NULL,
+       content_id TEXT,
+       created_at TEXT NOT NULL
+     );
+     ```
+
+2. **添加 KV 命名空间绑定**（可选，用于会话管理）
+   - 点击 **Add binding** → 选择 **KV namespace**
+   - Variable name: `KV`
+   - 点击 **Create new namespace** → 输入 `storage_kv`
+   - 保存
+
+完成！访问你的 Pages URL 即可使用。
+
+---
+
 ## 项目特点
 
 ✅ **完全免费** - 利用优学院的华为云 OBS 存储空间
@@ -43,56 +86,77 @@
 1. Cloudflare 账号（免费版即可）
 2. 优学院账号
 3. Node.js 18+ 和 npm
-4. Wrangler CLI
 
-## 部署步骤
+> **注意：** 本项目使用 Cloudflare Workers 绑定，无需 `.env` 文件。所有配置通过 `wrangler.toml` 管理。详见 [CLOUDFLARE_CONFIG.md](CLOUDFLARE_CONFIG.md)
 
-### 1. 安装依赖
+## 快速开始
+
+### 方式一：自动配置（推荐）
+
+```bash
+# 1. 安装依赖
+npm install
+
+# 2. 登录 Cloudflare
+npx wrangler login
+
+# 3. 自动创建 KV 和 D1 资源
+npm run setup
+
+# 4. 本地测试
+npm run dev
+
+# 5. 部署到 Cloudflare Pages
+npm run deploy
+```
+
+### 方式二：手动配置
+
+如果自动配置失败，可以手动创建资源：
+
+#### 1. 安装依赖
 
 ```bash
 npm install
 ```
 
-### 2. 安装 Wrangler CLI
+#### 2. 登录 Cloudflare
 
 ```bash
-npm install -g wrangler
+npx wrangler login
 ```
 
-### 3. 登录 Cloudflare
+#### 3. 创建 D1 数据库
 
 ```bash
-wrangler login
-```
-
-### 4. 创建 D1 数据库
-
-```bash
-wrangler d1 create storage_db
+npx wrangler d1 create storage_db
 ```
 
 记录输出的 `database_id`，更新 `wrangler.toml`：
 
 ```toml
 [[d1_databases]]
+binding = "DB"
+database_name = "storage_db"
 database_id = "粘贴你的 database_id"
 ```
 
-### 5. 初始化数据库
+#### 4. 初始化数据库
 
 ```bash
-wrangler d1 execute storage_db --file=schema.sql
+npx wrangler d1 execute storage_db --file=schema.sql
 ```
 
-### 6. 创建 KV 命名空间（可选）
+#### 5. 创建 KV 命名空间（可选）
 
 ```bash
-wrangler kv:namespace create KV
+npx wrangler kv namespace create KV
+npx wrangler kv namespace create KV --preview
 ```
 
-更新 `wrangler.toml` 中的 KV id。
+更新 `wrangler.toml` 中的 KV id 和 preview_id。
 
-### 7. 本地测试
+#### 6. 本地测试
 
 ```bash
 npm run dev
@@ -100,10 +164,9 @@ npm run dev
 
 访问 `http://localhost:5173`，使用优学院账号登录测试。
 
-### 8. 部署到 Cloudflare Pages
+#### 7. 部署到 Cloudflare Pages
 
 ```bash
-npm run build
 npm run deploy
 ```
 

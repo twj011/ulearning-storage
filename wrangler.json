@@ -1,0 +1,20 @@
+{
+  "$schema": "https://raw.githubusercontent.com/cloudflare/workers-sdk/main/packages/wrangler/config-schema.json",
+  "name": "ulearning-storage",
+  "compatibility_date": "2024-01-01",
+  "pages_build_output_dir": "dist",
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "storage_db",
+      "database_id": ""
+    }
+  ],
+  "kv_namespaces": [
+    {
+      "binding": "KV",
+      "id": "",
+      "preview_id": ""
+    }
+  ]
+}

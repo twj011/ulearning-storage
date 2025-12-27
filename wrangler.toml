@@ -3,13 +3,24 @@ compatibility_date = "2024-01-01"
 
 pages_build_output_dir = "dist"
 
-# KV namespace for sessions (optional)
-[[kv_namespaces]]
-binding = "KV"
-id = "your-kv-id"
+# ==================== 必需绑定 ====================
 
-# D1 database for file metadata
+# D1 数据库（必需）
+# 用途：存储文件元数据
+# 绑定名称：DB（默认，不要修改）
+# 创建方式：npm run setup
 [[d1_databases]]
 binding = "DB"
 database_name = "storage_db"
 database_id = "your-database-id"
+
+# ==================== 可选绑定 ====================
+
+# KV 命名空间（可选）
+# 用途：会话管理、缓存
+# 绑定名称：KV（默认，不要修改）
+# 创建方式：npm run setup
+[[kv_namespaces]]
+binding = "KV"
+id = "your-kv-id"
+preview_id = "your-kv-preview-id"
