@@ -1,8 +1,8 @@
 // Cloudflare Workers API - 调用优学院和华为云 OBS
 // 完整实现：登录、上传、下载、文件管理
 
-import * as UlearningAPI from './ulearning-api'
-import { uploadToOBS } from './obs-uploader'
+import * as UlearningAPI from '../ulearning-api'
+import { uploadToOBS } from '../obs-uploader'
 
 interface Env {
   DB: D1Database
