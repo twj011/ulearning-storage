@@ -79,28 +79,56 @@ export const onRequest: PagesFunction<Env> = async (context) => {
       })
     }
 
-    // 文件上传接口 - 返回上传令牌给前端
+    // 文件上传接口
     if (url.pathname === '/api/files/upload' && request.method === 'POST') {
       const authToken = await getAuthToken(env)
       const formData = await request.formData()
       const files = formData.getAll('files') as File[]
       const courseId = formData.get('courseId') as string | null || env.DEFAULT_COURSE_ID
+      const uploaded = []
 
-      const uploadTokens = []
       for (const file of files) {
         const remotePath = UlearningAPI.buildRemotePath(file.name)
         const tokenInfo = await UlearningAPI.getUploadToken(authToken, remotePath)
 
-        uploadTokens.push({
-          fileName: file.name,
-          remotePath,
-          tokenInfo,
-          authToken,
-          courseId
+        // 直接使用临时凭证上传，不需要签名
+        const obsUrl = `https://${tokenInfo.bucket}.${tokenInfo.endpoint}/${remotePath}?x-obs-security-token=${encodeURIComponent(tokenInfo.securitytoken)}`
+        const obsResponse = await fetch(obsUrl, {
+          method: 'PUT',
+          headers: {
+            'x-obs-acl': 'public-read'
+          },
+          body: file
         })
+
+        if (!obsResponse.ok) {
+          const errorText = await obsResponse.text()
+          throw new Error(`OBS上传失败: ${obsResponse.status} - ${errorText}`)
+        }
+
+        const fileUrl = `${tokenInfo.domain}/${remotePath}`
+        const contentId = await UlearningAPI.notifyUploadComplete(authToken, file.name, fileUrl, file.size)
+
+        if (courseId) {
+          await UlearningAPI.publishToCourse(authToken, contentId, courseId)
+        }
+
+        await env.DB.prepare(
+          'INSERT INTO files (id, name, size, type, url, content_id, created_at) VALUES (?, ?, ?, ?, ?, ?, ?)'
+        ).bind(
+          crypto.randomUUID(),
+          file.name,
+          file.size,
+          file.type,
+          fileUrl,
+          contentId,
+          new Date().toISOString()
+        ).run()
+
+        uploaded.push({ name: file.name, url: fileUrl, contentId })
       }
 
-      return new Response(JSON.stringify({ uploadTokens }), {
+      return new Response(JSON.stringify({ files: uploaded }), {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' }
       })
     }
