@@ -21,11 +21,13 @@ const corsHeaders = {
 }
 
 // 获取或刷新 token
-async function getAuthToken(env: Env): Promise<string> {
-  // 1. 尝试从 KV 获取缓存的 token
-  const cachedToken = await env.KV.get('auth_token')
-  if (cachedToken) {
-    return cachedToken
+async function getAuthToken(env: Env, forceRefresh: boolean = false): Promise<string> {
+  // 1. 尝试从 KV 获取缓存的 token（除非强制刷新）
+  if (!forceRefresh) {
+    const cachedToken = await env.KV.get('auth_token')
+    if (cachedToken) {
+      return cachedToken
+    }
   }
 
   // 2. 使用环境变量中的用户名密码登录
@@ -65,6 +67,14 @@ export const onRequest: PagesFunction<Env> = async (context) => {
         token: authToken,
         sessionId
       }), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+      })
+    }
+
+    // 刷新 token 接口
+    if (url.pathname === '/api/auth/refresh' && request.method === 'POST') {
+      const authToken = await getAuthToken(env, true)
+      return new Response(JSON.stringify({ token: authToken }), {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' }
       })
     }
