@@ -1,0 +1,34 @@
+# Python 旧版本（已迁移到 TypeScript）
+_python-old/
+
+# Python-generated files
+__pycache__/
+*.py[oc]
+build/
+wheels/
+*.egg-info
+
+# Virtual environments
+.venv
+
+# Environment files
+.env
+.env.local
+
+# Logs
+*log
+*.log
+f12-log/
+
+# IDE
+.claude/
+.vscode/
+.idea/
+
+# Node.js
+node_modules/
+
+# Build output
+dist/
+.wrangler/
+.dev.vars
