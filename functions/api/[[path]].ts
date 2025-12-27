@@ -49,35 +49,6 @@ export const onRequest: PagesFunction<Env> = async (context) => {
     return new Response(null, { headers: corsHeaders })
   }
 
-  // HTTP Basic Auth 验证
-  const adminName = env.ADMIN_NAME || 'ADMIN'
-  const adminPassword = env.ADMIN_PASSWORD || '123456'
-  const authHeader = request.headers.get('Authorization')
-
-  if (!authHeader || !authHeader.startsWith('Basic ')) {
-    return new Response('Unauthorized', {
-      status: 401,
-      headers: {
-        'WWW-Authenticate': 'Basic realm="Protected Area"',
-        ...corsHeaders
-      }
-    })
-  }
-
-  const base64Credentials = authHeader.split(' ')[1]
-  const credentials = atob(base64Credentials)
-  const [username, password] = credentials.split(':')
-
-  if (username !== adminName || password !== adminPassword) {
-    return new Response('Unauthorized', {
-      status: 401,
-      headers: {
-        'WWW-Authenticate': 'Basic realm="Protected Area"',
-        ...corsHeaders
-      }
-    })
-  }
-
   try {
     // 登录接口
     if (url.pathname === '/api/auth/login' && request.method === 'POST') {
