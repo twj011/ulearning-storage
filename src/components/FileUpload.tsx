@@ -21,37 +21,63 @@ export default function FileUpload({ token, onClose, onComplete }: FileUploadPro
     setError('')
     setProgress(0)
 
-    const formData = new FormData()
-    acceptedFiles.forEach(file => formData.append('files', file))
-
     try {
-      const xhr = new XMLHttpRequest()
+      // 1. 获取上传令牌
+      const formData = new FormData()
+      acceptedFiles.forEach(file => formData.append('files', file))
 
-      xhr.upload.addEventListener('progress', (e) => {
-        if (e.lengthComputable) {
-          setProgress(Math.round((e.loaded / e.total) * 100))
-        }
+      const tokenResponse = await fetch('/api/files/upload', {
+        method: 'POST',
+        body: formData
       })
 
-      xhr.addEventListener('load', () => {
-        if (xhr.status === 200) {
-          setSuccess(true)
-          setTimeout(() => {
-            onComplete()
-          }, 1500)
-        } else {
-          setError('上传失败，请重试')
-          setUploading(false)
-        }
-      })
+      if (!tokenResponse.ok) throw new Error('获取上传令牌失败')
 
-      xhr.addEventListener('error', () => {
-        setError('上传失败，请重试')
-        setUploading(false)
-      })
+      const { uploadTokens } = await tokenResponse.json()
 
-      xhr.open('POST', '/api/files/upload')
-      xhr.send(formData)
+      // 2. 上传每个文件到OBS
+      for (let i = 0; i < uploadTokens.length; i++) {
+        const { fileName, remotePath, tokenInfo, authToken, courseId } = uploadTokens[i]
+        const file = acceptedFiles[i]
+
+        // 上传到OBS
+        const obsUrl = `https://${tokenInfo.bucket}.${tokenInfo.endpoint}/${remotePath}`
+        const obsResponse = await fetch(obsUrl, {
+          method: 'PUT',
+          headers: {
+            'x-amz-date': new Date().toISOString().replace(/[:-]|\.\d{3}/g, ''),
+            'x-amz-security-token': tokenInfo.securitytoken,
+            'x-amz-content-sha256': 'UNSIGNED-PAYLOAD'
+          },
+          body: file
+        })
+
+        if (!obsResponse.ok) throw new Error(`上传到OBS失败: ${obsResponse.status}`)
+
+        const fileUrl = `${tokenInfo.domain}/${remotePath}`
+
+        // 3. 通知后端上传完成
+        const completeResponse = await fetch('/api/files/complete', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            authToken,
+            fileName,
+            fileUrl,
+            fileSize: file.size,
+            courseId
+          })
+        })
+
+        if (!completeResponse.ok) throw new Error('通知上传完成失败')
+
+        setProgress(Math.round(((i + 1) / uploadTokens.length) * 100))
+      }
+
+      setSuccess(true)
+      setTimeout(() => {
+        onComplete()
+      }, 1500)
     } catch (err) {
       setError(err instanceof Error ? err.message : '上传失败')
       setUploading(false)
