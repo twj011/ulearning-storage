@@ -36,4 +36,5 @@ dist/
 test*.*
 *.txt
 .vercel
-*.md
+docs/cloud flare/*.md
+docs/CLOUDFLARE_CONFIG.md
