@@ -8,7 +8,7 @@ function App() {
     <Router>
       <div className="min-h-screen bg-gray-50">
         <Routes>
-          <Route path="/" element={<FileManager token="public" onLogout={() => {}} />} />
+          <Route path="/" element={<FileManager token="public" />} />
           <Route path="/admin" element={<AdminPanel />} />
           <Route path="/imgbed" element={<ImgBed />} />
         </Routes>

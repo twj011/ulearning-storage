@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react'
-import { FiUpload, FiGrid, FiList, FiImage, FiSettings, FiFolder } from 'react-icons/fi'
+import { useState } from 'react'
+import { FiUpload, FiList, FiImage, FiSettings, FiFolder } from 'react-icons/fi'
 import { useNavigate } from 'react-router-dom'
 import FileUpload from './FileUpload'
 import FileList from './FileList'
@@ -8,12 +8,11 @@ import CourseFolders from './CourseFolders'
 
 interface FileManagerProps {
   token: string
-  onLogout: () => void
 }
 
 type ViewMode = 'files' | 'gallery' | 'course'
 
-export default function FileManager({ token, onLogout }: FileManagerProps) {
+export default function FileManager({ token }: FileManagerProps) {
   const [viewMode, setViewMode] = useState<ViewMode>('files')
   const [showUpload, setShowUpload] = useState(false)
   const [refreshKey, setRefreshKey] = useState(0)
