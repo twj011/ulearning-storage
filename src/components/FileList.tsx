@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { FiDownload, FiTrash2, FiFile, FiImage, FiVideo, FiMusic } from 'react-icons/fi'
+import LoadingSkeleton from './LoadingSkeleton'
 
 interface File {
   id: string
@@ -65,7 +66,7 @@ export default function FileList({ token, refreshKey }: FileListProps) {
   }
 
   if (loading) {
-    return <div className="text-center py-12">加载中...</div>
+    return <LoadingSkeleton type="table" />
   }
 
   if (files.length === 0) {
@@ -77,43 +78,43 @@ export default function FileList({ token, refreshKey }: FileListProps) {
   }
 
   return (
-    <div className="bg-white rounded-lg shadow">
+    <div className="bg-white dark:bg-gray-800 rounded-lg shadow overflow-hidden">
       <div className="overflow-x-auto">
         <table className="w-full">
-          <thead className="bg-gray-50 border-b">
+          <thead className="bg-gray-50 dark:bg-gray-700 border-b dark:border-gray-600">
             <tr>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">文件名</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">大小</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">上传时间</th>
-              <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">操作</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">文件名</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">大小</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">上传时间</th>
+              <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">操作</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-gray-200">
+          <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
             {files.map(file => (
-              <tr key={file.id} className="hover:bg-gray-50">
+              <tr key={file.id} className="hover:bg-gray-50 dark:hover:bg-gray-700">
                 <td className="px-6 py-4 whitespace-nowrap">
                   <div className="flex items-center gap-3">
                     {getFileIcon(file.type)}
-                    <span className="text-sm text-gray-900">{file.name}</span>
+                    <span className="text-sm text-gray-900 dark:text-gray-100">{file.name}</span>
                   </div>
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
                   {formatSize(file.size)}
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
                   {new Date(file.createdAt).toLocaleString('zh-CN')}
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-right text-sm">
                   <a
                     href={file.url}
                     download
-                    className="text-blue-600 hover:text-blue-800 mr-4"
+                    className="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 mr-4"
                   >
                     <FiDownload className="inline" />
                   </a>
                   <button
                     onClick={() => handleDelete(file.id)}
-                    className="text-red-600 hover:text-red-800"
+                    className="text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300"
                   >
                     <FiTrash2 className="inline" />
                   </button>

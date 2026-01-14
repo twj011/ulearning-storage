@@ -1,5 +1,7 @@
 import { useState, useEffect } from 'react'
 import { FiCopy, FiCheck, FiTrash2 } from 'react-icons/fi'
+import LoadingSkeleton from './LoadingSkeleton'
+import ImagePreview from './ImagePreview'
 
 interface Image {
   id: string
@@ -18,6 +20,7 @@ export default function ImageGallery({ token, refreshKey }: ImageGalleryProps) {
   const [images, setImages] = useState<Image[]>([])
   const [loading, setLoading] = useState(true)
   const [copiedId, setCopiedId] = useState<string | null>(null)
+  const [previewImage, setPreviewImage] = useState<{ src: string; alt: string } | null>(null)
 
   useEffect(() => {
     fetchImages()
@@ -58,51 +61,64 @@ export default function ImageGallery({ token, refreshKey }: ImageGalleryProps) {
   }
 
   if (loading) {
-    return <div className="text-center py-12">加载中...</div>
+    return <LoadingSkeleton type="gallery" />
   }
 
   if (images.length === 0) {
     return (
-      <div className="text-center py-12 text-gray-500">
+      <div className="text-center py-12 text-gray-500 dark:text-gray-400">
         暂无图片，上传图片后即可使用图床功能
       </div>
     )
   }
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-      {images.map(image => (
-        <div key={image.id} className="bg-white rounded-lg shadow overflow-hidden group">
-          <div className="aspect-square bg-gray-100 relative">
-            <img
-              src={image.thumbnail || image.url}
-              alt={image.name}
-              className="w-full h-full object-cover"
-            />
-            <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-50 transition flex items-center justify-center gap-2 opacity-0 group-hover:opacity-100">
-              <button
-                onClick={() => copyToClipboard(image.url, image.id)}
-                className="bg-white text-gray-800 px-4 py-2 rounded-lg hover:bg-gray-100 transition flex items-center gap-2"
-              >
-                {copiedId === image.id ? <FiCheck /> : <FiCopy />}
-                {copiedId === image.id ? '已复制' : '复制链接'}
-              </button>
-              <button
-                onClick={() => handleDelete(image.id)}
-                className="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition"
-              >
-                <FiTrash2 />
-              </button>
+    <>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+        {images.map(image => (
+          <div key={image.id} className="bg-white dark:bg-gray-800 rounded-lg shadow overflow-hidden group">
+            <div className="aspect-square bg-gray-100 dark:bg-gray-700 relative">
+              <img
+                src={image.thumbnail || image.url}
+                alt={image.name}
+                className="w-full h-full object-cover cursor-pointer"
+                loading="lazy"
+                onClick={() => setPreviewImage({ src: image.url, alt: image.name })}
+              />
+              <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-50 transition flex items-center justify-center gap-2 opacity-0 group-hover:opacity-100">
+                <button
+                  onClick={() => copyToClipboard(image.url, image.id)}
+                  className="bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-200 px-4 py-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition flex items-center gap-2"
+                >
+                  {copiedId === image.id ? <FiCheck /> : <FiCopy />}
+                  {copiedId === image.id ? '已复制' : '复制链接'}
+                </button>
+                <button
+                  onClick={() => handleDelete(image.id)}
+                  className="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition"
+                >
+                  <FiTrash2 />
+                </button>
+              </div>
+            </div>
+            <div className="p-4">
+              <p className="text-sm text-gray-800 dark:text-gray-200 truncate">{image.name}</p>
+              <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                {new Date(image.createdAt).toLocaleDateString('zh-CN')}
+              </p>
             </div>
           </div>
-          <div className="p-4">
-            <p className="text-sm text-gray-800 truncate">{image.name}</p>
-            <p className="text-xs text-gray-500 mt-1">
-              {new Date(image.createdAt).toLocaleDateString('zh-CN')}
-            </p>
-          </div>
-        </div>
-      ))}
-    </div>
+        ))}
+      </div>
+      
+      {previewImage && (
+        <ImagePreview
+          src={previewImage.src}
+          alt={previewImage.alt}
+          isOpen={true}
+          onClose={() => setPreviewImage(null)}
+        />
+      )}
+    </>
   )
 }
