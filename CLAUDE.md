@@ -31,7 +31,3 @@ This is a file storage web app that uses ULearning's Huawei Cloud OBS for free f
 
 **Backend**: Designed for Cloudflare Workers + D1 database (see PROJECT_SUMMARY.md for deployment)
 
-## Notes
-
-- Uses ULearning API for authentication and OBS upload tokens
-- Files are stored on Huawei Cloud OBS via ULearning's infrastructure
