@@ -12,6 +12,33 @@ A free personal cloud drive built utilizing the Huawei Cloud OBS storage space p
 - **Storage**: Huawei Cloud OBS (via Ulearning platform)
 - **Authentication**: Ulearning Account Login
 
+## Prerequisites
+
+### Ulearning Account Registration
+
+Before using this cloud drive, you need to register a Ulearning account(teacher).
+
+#### Step 1: Register with Domain Email
+![Register with domain email](./assets/1可以使用域名邮箱进行注册.png)
+
+You can register using a domain email address. Visit the Ulearning registration page and sign up with your email.
+
+#### Step 2: Choose School with Email Registration
+![Choose school](./assets/2注册的时候可以自己选择允许邮箱注册的学校.png)
+
+During registration, you can select schools that allow email registration. This gives you access to the platform's features.
+
+#### Step 3: Create Course with Random Name
+![Create course](./assets/3给课程随机起名字.png)
+
+After registration, create a course. You can give it any name - this will be your storage space container.
+
+#### Step 4: Access File Storage
+![File storage](./assets/4文件会保存到资源这里.png)
+
+Your uploaded files will be saved in the course resources section, providing you with cloud storage access.
+
+
 ## Quick Deployment
 
 ### 1. Fork the Project
